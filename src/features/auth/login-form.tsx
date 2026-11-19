@@ -40,6 +40,8 @@ export function LoginForm() {
   const [forgotOpen, setForgotOpen] = useState(false);
 
   const nextParam = searchParams.get("next");
+  const emailParam = searchParams.get("email");
+  const isJustRegistered = searchParams.get("registered") === "true";
   const next =
     nextParam?.startsWith("/") && !nextParam.startsWith("//")
       ? nextParam
@@ -52,8 +54,14 @@ export function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: emailParam ?? "", password: "" },
   });
+
+  useEffect(() => {
+    if (emailParam) {
+      setValue("email", emailParam, { shouldValidate: true });
+    }
+  }, [emailParam, setValue]);
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -93,9 +101,9 @@ export function LoginForm() {
   return (
     <>
       <div>
-        <p className="eyebrow">Welcome back</p>
+        <p className="eyebrow">User Login</p>
         <h1 className="mt-4 font-display text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-          Sign in and get back to it.
+          Login to StudioSpace
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-base-content/55">
           Pick up your saved studios, manage listings, or check a booking
@@ -104,6 +112,15 @@ export function LoginForm() {
       </div>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
+        {isJustRegistered ? (
+          <div
+            role="status"
+            className="rounded-xl border border-success/30 bg-success/15 px-4 py-3 text-sm font-medium text-success"
+          >
+            ✓ Account registered successfully! Enter your password to sign in.
+          </div>
+        ) : null}
+
         {formError ? (
           <div
             role="alert"
@@ -186,7 +203,7 @@ export function LoginForm() {
           className="w-full"
           isLoading={isSubmitting}
         >
-          Sign in
+          Login
         </Button>
       </form>
 
@@ -206,7 +223,7 @@ export function LoginForm() {
           href={registerHref}
           className="font-semibold text-base-content underline-offset-4 hover:underline"
         >
-          Create an account
+          Sign Up here
         </Link>
       </p>
 
