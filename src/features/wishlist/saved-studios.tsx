@@ -8,7 +8,6 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { StudioCardSkeleton } from "@/components/ui/skeleton";
 import { StudioCard } from "@/features/studios/studio-card";
-import { WishlistButton } from "@/features/wishlist/wishlist-button";
 import { api } from "@/lib/api";
 import type { Studio } from "@/types";
 
@@ -73,14 +72,7 @@ export function SavedStudios() {
       </p>
       <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {studios.map((studio) => (
-          <div key={studio.id} className="relative">
-            <StudioCard studio={studio} />
-            <WishlistButton
-              studioId={studio.id}
-              nextPath="/saved"
-              className="absolute right-3 top-3 z-10 border-base-100/40 bg-base-100/90 backdrop-blur"
-            />
-          </div>
+          <StudioCard key={studio.id} studio={studio} />
         ))}
       </div>
     </>
