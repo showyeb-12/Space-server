@@ -19,15 +19,15 @@ export const studioFormSchema = z.object({
   category: z.enum(STUDIO_CATEGORIES, {
     message: "Choose a valid studio category.",
   }),
-  hourlyRate: z.coerce
+  hourlyRate: z
     .number({ message: "Enter an hourly rate." })
     .positive("Hourly rate must be greater than 0.")
     .max(100_000, "Hourly rate is too high."),
-  securityDeposit: z.coerce
+  securityDeposit: z
     .number({ message: "Enter a security deposit." })
     .nonnegative("Security deposit cannot be negative.")
     .max(1_000_000, "Security deposit is too high."),
-  capacity: z.coerce
+  capacity: z
     .number({ message: "Enter a capacity." })
     .int("Capacity must be a whole number.")
     .min(1, "Capacity must be at least 1.")
