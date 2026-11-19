@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm, type Path } from "react-hook-form";
+import { useForm, useWatch, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Check, CircleDollarSign, ImageIcon, ShieldCheck } from "lucide-react";
@@ -39,6 +39,23 @@ const formFields: Array<keyof StudioFormValues> = [
   "overview",
 ];
 
+const POPULAR_AMENITIES = [
+  "Natural Light",
+  "High-speed Wi-Fi",
+  "Air Conditioning",
+  "Soundproofing",
+  "Blackout Curtains",
+  "Cyc Wall",
+  "Professional Lighting",
+  "Audio Interface",
+  "Dressing Room",
+  "Kitchenette",
+  "Loading Dock",
+  "Free Parking",
+  "Wheelchair Accessible",
+  "Lounge Area",
+];
+
 const hostTips = [
   "Lead with the light, sound, and space people are booking.",
   "Be specific about access, load-in, and house rules.",
@@ -56,7 +73,7 @@ export function StudioForm({ studio }: { studio?: Studio }) {
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     setError,
     formState: { errors, isSubmitting },
   } = useForm<StudioFormValues>({
@@ -74,7 +91,24 @@ export function StudioForm({ studio }: { studio?: Studio }) {
     },
   });
 
-  const imageUrl = watch("imageUrl");
+  const imageUrl = useWatch({ control, name: "imageUrl" }) ?? "";
+  const amenitiesText = useWatch({ control, name: "amenitiesText" }) ?? "";
+  const selectedAmenities = parseAmenities(amenitiesText);
+
+  function toggleAmenity(amenity: string) {
+    const current = parseAmenities(amenitiesText);
+    const exists = current.some(
+      (item) => item.toLowerCase() === amenity.toLowerCase(),
+    );
+    const next = exists
+      ? current.filter((item) => item.toLowerCase() !== amenity.toLowerCase())
+      : [...current, amenity];
+
+    setValue("amenitiesText", next.join(", "), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
 
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
@@ -108,8 +142,8 @@ export function StudioForm({ studio }: { studio?: Studio }) {
         toast.success("Listing updated successfully.");
       } else {
         await api.post<{ studio: Studio }>("/studios", payload);
-        toast.success("Your studio is live.", {
-          description: "It is now visible in Explore Studios.",
+        toast.success("Studio listing created successfully.", {
+          description: "Your space is now live in Explore Studios.",
         });
       }
 
@@ -176,6 +210,30 @@ export function StudioForm({ studio }: { studio?: Studio }) {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            {/* Read-only User Email & Name */}
+            <div className="sm:col-span-2 grid gap-4 sm:grid-cols-2 rounded-2xl bg-base-200/50 p-4 border border-base-content/10">
+              <div>
+                <label className={labelClass}>Host Name (Read-only)</label>
+                <input
+                  type="text"
+                  readOnly
+                  disabled
+                  value={user?.name ?? ""}
+                  className={cn(inputClass, "opacity-75 cursor-not-allowed bg-base-200")}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Host Email (Read-only)</label>
+                <input
+                  type="text"
+                  readOnly
+                  disabled
+                  value={user?.email ?? ""}
+                  className={cn(inputClass, "opacity-75 cursor-not-allowed bg-base-200")}
+                />
+              </div>
+            </div>
+
             <div className="sm:col-span-2">
               <label htmlFor="studio-title" className={labelClass}>
                 Listing title
@@ -319,9 +377,51 @@ export function StudioForm({ studio }: { studio?: Studio }) {
             </div>
 
             <div>
-              <label htmlFor="studio-amenities" className={labelClass}>
-                Amenities
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="studio-amenities" className={labelClass}>
+                  Amenities List (Tags / Checkboxes)
+                </label>
+                <span className="text-[0.65rem] text-base-content/45">
+                  Click tags to toggle or type below
+                </span>
+              </div>
+
+              {/* Interactive tags/checkboxes */}
+              <div className="mb-3 flex flex-wrap gap-2">
+                {POPULAR_AMENITIES.map((amenity) => {
+                  const isChecked = selectedAmenities.some(
+                    (item) => item.toLowerCase() === amenity.toLowerCase(),
+                  );
+                  return (
+                    <button
+                      key={amenity}
+                      type="button"
+                      onClick={() => toggleAmenity(amenity)}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-all",
+                        isChecked
+                          ? "border-primary bg-primary/25 text-base-content font-semibold shadow-xs"
+                          : "border-base-content/15 bg-base-100 text-base-content/65 hover:border-base-content/30",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "grid size-3.5 place-items-center rounded border",
+                          isChecked
+                            ? "border-primary bg-primary text-primary-content"
+                            : "border-base-content/30 bg-transparent",
+                        )}
+                      >
+                        {isChecked ? (
+                          <Check className="size-2.5 stroke-[3]" aria-hidden="true" />
+                        ) : null}
+                      </span>
+                      <span>{amenity}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
               <input
                 id="studio-amenities"
                 type="text"
