@@ -178,8 +178,8 @@ export function BookingCard({ studio }: { studio: Studio }) {
           </p>
         </div>
 
-        <Button size="lg" className="mt-6 w-full" onClick={openBooking}>
-          Request booking
+        <Button size="lg" className="mt-6 w-full gap-2" onClick={openBooking}>
+          <span>Book Workspace Now</span>
           <CalendarDays className="size-4" aria-hidden="true" />
         </Button>
         <p className="mt-3 text-center text-[0.7rem] leading-relaxed text-base-content/40">
@@ -202,7 +202,7 @@ export function BookingCard({ studio }: { studio: Studio }) {
                 : "No deposit"}
             </p>
           </div>
-          <Button onClick={openBooking}>Request booking</Button>
+          <Button onClick={openBooking}>Book Workspace Now</Button>
         </div>
       </div>
 

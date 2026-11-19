@@ -8,6 +8,7 @@ import {
   CalendarDays,
   CalendarX2,
   Clock,
+  Download,
   ShieldCheck,
   StickyNote,
 } from "lucide-react";
@@ -19,6 +20,7 @@ import { ErrorState } from "@/components/ui/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { api, ApiError } from "@/lib/api";
+import { generateInvoicePdf } from "@/lib/generate-invoice";
 import { BOOKING_STATUSES, type BookingStatus } from "@/lib/constants";
 import { cn, formatCurrency, formatDate, formatTime } from "@/lib/utils";
 import type { Booking } from "@/types";
@@ -84,7 +86,10 @@ export function MyBookings() {
     },
   });
 
-  const bookings = bookingsQuery.data ?? [];
+  const bookings = useMemo(
+    () => bookingsQuery.data ?? [],
+    [bookingsQuery.data],
+  );
 
   const counts = useMemo(() => {
     const result: Record<BookingFilter, number> = {
@@ -294,7 +299,7 @@ export function MyBookings() {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={`/studios/${booking.studioId}`}
                         className={buttonStyles({
@@ -304,23 +309,40 @@ export function MyBookings() {
                       >
                         View studio
                       </Link>
+
                       {booking.status === "Pending" ? (
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setBookingToCancel(booking)}
+                          className="text-error hover:bg-error/10 hover:border-error/30"
                         >
-                          Cancel request
+                          Cancel Booking
                         </Button>
-                      ) : (
+                      ) : null}
+
+                      {booking.status === "Confirmed" ||
+                      booking.status === "Completed" ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            generateInvoicePdf(booking);
+                            toast.success("Invoice downloaded as PDF.");
+                          }}
+                          className="gap-1.5"
+                          title="Download PDF invoice receipt"
+                        >
+                          <Download className="size-3.5" aria-hidden="true" />
+                          <span>PDF Invoice</span>
+                        </Button>
+                      ) : null}
+
+                      {booking.status === "Cancelled" ? (
                         <span className="rounded-full bg-base-200 px-3 py-1.5 text-[0.65rem] font-semibold text-base-content/45">
-                          {booking.status === "Confirmed"
-                            ? "Host confirmed"
-                            : booking.status === "Completed"
-                              ? "Session completed"
-                              : "Cancelled"}
+                          Cancelled
                         </span>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -336,16 +358,16 @@ export function MyBookings() {
         onConfirm={() => {
           if (bookingToCancel) cancelMutation.mutate(bookingToCancel.id);
         }}
-        title="Cancel this booking request?"
+        title="Cancel this booking?"
         description={
           bookingToCancel
-            ? `Your request for ${bookingToCancel.studioTitle} on ${formatDate(
+            ? `Your booking for ${bookingToCancel.studioTitle} on ${formatDate(
                 bookingToCancel.date,
                 { month: "long", day: "numeric" },
-              )} will be withdrawn. You can always request another slot.`
+              )} will be cancelled. You can always book another slot.`
             : ""
         }
-        confirmLabel="Cancel request"
+        confirmLabel="Cancel Booking"
         cancelLabel="Keep booking"
         isLoading={cancelMutation.isPending}
       />
