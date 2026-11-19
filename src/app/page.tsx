@@ -24,25 +24,30 @@ import {
 
 const categoryMeta: Record<
   StudioCategory,
-  { icon: typeof Camera; className: string }
+  { label: string; icon: typeof Camera; className: string }
 > = {
   "Photo Studio": {
+    label: "Photo Studios",
     icon: Camera,
     className: "bg-primary text-primary-content",
   },
   "Film Stage": {
+    label: "Sound Stages",
     icon: Clapperboard,
     className: "bg-secondary text-secondary-content",
   },
   "Podcast Lounge": {
+    label: "Podcast Rooms",
     icon: Mic,
     className: "bg-accent text-accent-content",
   },
   "Music Suite": {
+    label: "Music Suites",
     icon: Music,
     className: "bg-base-200 text-base-content",
   },
   Workshop: {
+    label: "Art Workshops",
     icon: Wrench,
     className: "bg-base-300 text-base-content",
   },
@@ -51,34 +56,55 @@ const categoryMeta: Record<
 const workflow = [
   {
     number: "01",
-    title: "Find your space",
-    description: "Filter by type, location, price, and the details that matter.",
+    title: "1. Discover Spaces",
+    description:
+      "Filter by category, location, hourly rates, and verified room specifications.",
     icon: Search,
   },
   {
     number: "02",
-    title: "Pick a slot",
-    description: "See hourly rates and request the exact window you need.",
+    title: "2. Select Shoot Hours",
+    description:
+      "Pick your production date, start time, and wrap time with clear transparent pricing.",
     icon: CalendarCheck,
   },
   {
     number: "03",
-    title: "Confirm with the host",
-    description: "Every booking is approved by a real person. No surprises.",
+    title: "3. Book Instantly",
+    description:
+      "Submit reservation requests with automated conflict and double-booking checks.",
     icon: ShieldCheck,
   },
   {
     number: "04",
-    title: "Make something",
-    description: "Show up, shoot, record, rehearse. That is the whole point.",
+    title: "4. Create & Produce",
+    description:
+      "Check in with host guidance, create with professional gear, and bring ideas to life.",
     icon: Sparkles,
   },
 ];
 
-const hostBenefits = [
-  "You approve every booking request.",
-  "Set your own hourly rate and deposit.",
-  "Edit, pause, or remove a listing anytime.",
+const platformAssurances = [
+  {
+    title: "Liability Protection",
+    description:
+      "Comprehensive coverage up to $1,000,000 for unexpected property damage and incident protection on every shoot.",
+  },
+  {
+    title: "Verified Profiles",
+    description:
+      "Identity verification for both hosts and creators, ensuring trusted, safe community interactions.",
+  },
+  {
+    title: "Equipment Safety",
+    description:
+      "Security deposits and standard equipment checklists keep lighting, sound stages, and audio gear guarded.",
+  },
+  {
+    title: "24/7 Host Support",
+    description:
+      "Round-the-clock priority creator and host support ready to assist with scheduling, access, or technical questions.",
+  },
 ];
 
 export default function Home() {
@@ -132,7 +158,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="font-display text-xl font-semibold leading-tight tracking-tight">
-                    {category}
+                    {meta.label}
                   </h3>
                   <p className="mt-2 text-xs leading-relaxed opacity-65">
                     {CATEGORY_DESCRIPTIONS[category]}
@@ -197,57 +223,62 @@ export default function Home() {
       </section>
 
       <section className="bg-secondary text-secondary-content">
-        <div className="container-shell grid gap-12 py-20 sm:py-24 lg:grid-cols-[1fr_0.9fr] lg:items-center">
-          <div>
-            <p className="inline-flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.24em] opacity-55">
-              <ShieldCheck className="size-3.5" aria-hidden="true" />
-              For hosts
-            </p>
-            <h2 className="mt-5 max-w-xl font-display text-4xl font-semibold leading-[0.98] tracking-[-0.045em] sm:text-5xl">
-              Your space. Your rules. Your calendar.
-            </h2>
-            <p className="mt-5 max-w-lg text-sm leading-relaxed opacity-65 sm:text-base">
-              StudioSpace gives independent hosts the tools to list a room
-              without handing over control. You decide what is available and
-              who walks through the door.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/add-studio"
-                className={buttonStyles({ variant: "primary", size: "lg" })}
-              >
-                List your studio
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-              <Link
-                href="/how-it-works"
-                className={buttonStyles({
-                  variant: "ghost",
-                  size: "lg",
-                  className:
-                    "border border-secondary-content/20 text-secondary-content hover:bg-secondary-content/10",
-                })}
-              >
-                How hosting works
-              </Link>
+        <div className="container-shell py-20 sm:py-24">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+            <div>
+              <p className="inline-flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.24em] opacity-55">
+                <ShieldCheck className="size-3.5" aria-hidden="true" />
+                Host Guarantee & Creator Support
+              </p>
+              <h2 className="mt-5 max-w-xl font-display text-4xl font-semibold leading-[0.98] tracking-[-0.045em] sm:text-5xl">
+                Protection, safety, and support behind every door.
+              </h2>
+              <p className="mt-5 max-w-lg text-sm leading-relaxed opacity-65 sm:text-base">
+                Whether you are opening up your daylight studio or booking a
+                sound stage for an album session, our platform assurances ensure
+                every shoot is safe, verified, and backed by real people.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/add-studio"
+                  className={buttonStyles({ variant: "primary", size: "lg" })}
+                >
+                  Host Your Space
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+                <Link
+                  href="/how-it-works"
+                  className={buttonStyles({
+                    variant: "ghost",
+                    size: "lg",
+                    className:
+                      "border border-secondary-content/20 text-secondary-content hover:bg-secondary-content/10",
+                  })}
+                >
+                  How Hosting Works
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {platformAssurances.map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-secondary-content/15 bg-secondary-content/5 p-5 transition-colors hover:bg-secondary-content/10"
+                >
+                  <span className="grid size-8 place-items-center rounded-full bg-primary text-primary-content">
+                    <Check className="size-4" aria-hidden="true" />
+                  </span>
+                  <h3 className="mt-4 font-display text-lg font-semibold tracking-tight">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-xs leading-relaxed opacity-70">
+                    {item.description}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-
-          <ul className="space-y-3">
-            {hostBenefits.map((benefit) => (
-              <li
-                key={benefit}
-                className="flex items-start gap-3 rounded-2xl border border-secondary-content/15 bg-secondary-content/5 p-4"
-              >
-                <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-primary text-primary-content">
-                  <Check className="size-3.5" aria-hidden="true" />
-                </span>
-                <span className="text-sm font-medium leading-relaxed opacity-85">
-                  {benefit}
-                </span>
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
 
@@ -292,7 +323,7 @@ export default function Home() {
                     "border border-primary-content/25 text-primary-content hover:bg-primary-content/10",
                 })}
               >
-                Create an account
+                Sign Up Now
               </Link>
             </div>
           </div>

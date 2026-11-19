@@ -6,9 +6,6 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { A11y, Autoplay, EffectFade, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { buttonStyles } from "@/components/ui/button";
-import "swiper/css";
-import "swiper/css/effect-fade";
-import "swiper/css/pagination";
 
 const slides = [
   {
@@ -92,11 +89,22 @@ export function HeroCarousel() {
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link
-                href={`/studios?category=${encodeURIComponent(slide.category)}`}
+                href="/studios"
                 className={buttonStyles({ variant: "primary", size: "lg" })}
               >
-                Browse {slide.category.toLowerCase()}s
+                Explore Studios
                 <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+              <Link
+                href="/studios"
+                className={buttonStyles({
+                  variant: "ghost",
+                  size: "lg",
+                  className:
+                    "border border-white/20 text-white backdrop-blur hover:bg-white/15",
+                })}
+              >
+                Host Your Space
               </Link>
               <span className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold text-white/70 backdrop-blur">
                 {slide.price}

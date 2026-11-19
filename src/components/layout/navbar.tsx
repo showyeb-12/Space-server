@@ -120,13 +120,13 @@ export function Navbar() {
                 href="/login"
                 className={buttonStyles({ variant: "ghost", size: "sm" })}
               >
-                Log in
+                Login
               </Link>
               <Link
                 href="/register"
                 className={buttonStyles({ variant: "primary", size: "sm" })}
               >
-                Get started
+                Sign Up
               </Link>
             </div>
           )}
@@ -208,14 +208,14 @@ export function Navbar() {
                     onClick={() => setIsMobileOpen(false)}
                     className={buttonStyles({ variant: "outline" })}
                   >
-                    Log in
+                    Login
                   </Link>
                   <Link
                     href="/register"
                     onClick={() => setIsMobileOpen(false)}
                     className={buttonStyles({ variant: "primary" })}
                   >
-                    Create an account
+                    Sign Up
                   </Link>
                 </div>
               )}

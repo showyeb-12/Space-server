@@ -45,7 +45,7 @@ export default function NotFound() {
           className={buttonStyles({ variant: "primary", size: "lg" })}
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
-          Return home
+          Return to Home
         </Link>
         <Link
           href="/studios"

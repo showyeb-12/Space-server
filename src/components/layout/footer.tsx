@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { STUDIO_CATEGORIES } from "@/lib/constants";
 
 const companyLinks = [
+  { href: "/register", label: "Sign Up / Register" },
+  { href: "/login", label: "Login" },
   { href: "/about", label: "About us" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/studios", label: "Explore studios" },
