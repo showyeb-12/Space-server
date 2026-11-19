@@ -9,12 +9,12 @@ import { useAuth } from "@/providers/auth-provider";
 import type { User } from "@/types";
 
 const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-const isGoogleInitialized = React.useRef<boolean>(false);
 
 export function GoogleSignIn({ next }: { next: string }) {
   const router = useRouter();
   const { setUser } = useAuth();
   const buttonRef = useRef<HTMLDivElement>(null);
+  const googleInitialized = useRef<boolean>(false);
   const [isScriptReady, setIsScriptReady] = useState(false);
   const [scriptFailed, setScriptFailed] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
