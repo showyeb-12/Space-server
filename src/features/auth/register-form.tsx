@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
@@ -15,13 +15,11 @@ import {
 } from "@/features/auth/auth-schemas";
 import { api, ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/providers/auth-provider";
 import type { User } from "@/types";
 
 export function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -29,7 +27,7 @@ export function RegisterForm() {
   const next =
     nextParam?.startsWith("/") && !nextParam.startsWith("//")
       ? nextParam
-      : "/dashboard";
+      : "/";
 
   const {
     register,
@@ -43,7 +41,6 @@ export function RegisterForm() {
       email: "",
       photoURL: "",
       password: "",
-      confirmPassword: "",
     },
   });
 
@@ -55,28 +52,38 @@ export function RegisterForm() {
     { label: "One lowercase letter", met: /[a-z]/.test(password) },
   ];
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onValid = async (values: RegisterFormValues) => {
     setFormError(null);
 
+    // Live password check
+    if (!passwordRules.every((rule) => rule.met)) {
+      const err =
+        "Password must be at least 6 characters with at least one uppercase and one lowercase letter.";
+      setFormError(err);
+      toast.error(err);
+      return;
+    }
+
     try {
+      const photo = values.photoURL?.trim();
+      const validPhoto = photo && /^https?:\/\//i.test(photo) ? photo : undefined;
+
       await api.post<{ user: User }>("/auth/register", {
-        name: values.name,
-        email: values.email,
-        photoURL: values.photoURL?.trim() || undefined,
+        name: values.name.trim(),
+        email: values.email.trim().toLowerCase(),
+        photoURL: validPhoto,
         password: values.password,
       });
 
-      const login = await api.post<{ user: User }>("/auth/login", {
-        email: values.email,
-        password: values.password,
+      toast.success("Account created successfully!", {
+        description: "Please sign in with your email and password.",
       });
 
-      setUser(login.data.user);
-      toast.success("Your account is ready.", {
-        description: "Welcome to StudioSpace.",
-      });
-      router.replace(next);
-      router.refresh();
+      router.push(
+        `/login?email=${encodeURIComponent(
+          values.email.trim().toLowerCase(),
+        )}&registered=true&next=${encodeURIComponent(next)}`,
+      );
     } catch (error) {
       const message =
         error instanceof ApiError
@@ -85,7 +92,18 @@ export function RegisterForm() {
       setFormError(message);
       toast.error("Could not create your account.", { description: message });
     }
-  });
+  };
+
+  const onInvalid = (fieldErrors: FieldErrors<RegisterFormValues>) => {
+    const firstField = Object.keys(fieldErrors)[0] as
+      | keyof RegisterFormValues
+      | undefined;
+    const msg = firstField
+      ? fieldErrors[firstField]?.message
+      : "Please fill out the form fields correctly.";
+    setFormError(String(msg));
+    toast.error("Form error", { description: String(msg) });
+  };
 
   const loginHref = nextParam
     ? `/login?next=${encodeURIComponent(next)}`
@@ -94,17 +112,16 @@ export function RegisterForm() {
   return (
     <>
       <div>
-        <p className="eyebrow">Join StudioSpace</p>
+        <p className="eyebrow">Sign Up / Register</p>
         <h1 className="mt-4 font-display text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-          Make room for your next idea.
+          Create an account.
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-base-content/55">
-          Book studios you love, save the ones you want to try, and list your
-          own space when you are ready.
+          Join StudioSpace to discover creative workspaces, book studios, and share your own rooms.
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
+      <form onSubmit={handleSubmit(onValid, onInvalid)} className="mt-8 space-y-4" noValidate>
         {formError ? (
           <div
             role="alert"
@@ -119,13 +136,13 @@ export function RegisterForm() {
             htmlFor="register-name"
             className="mb-1.5 block text-xs font-semibold text-base-content/70"
           >
-            Full name
+            Full Name <span className="text-error">*</span>
           </label>
           <input
             id="register-name"
             type="text"
             autoComplete="name"
-            placeholder="Alex Morgan"
+            placeholder="Maya Chen"
             className="input input-bordered h-12 w-full rounded-xl border-base-content/10 bg-base-100 text-sm focus:border-base-content/30 focus:outline-none"
             {...register("name")}
           />
@@ -141,13 +158,13 @@ export function RegisterForm() {
             htmlFor="register-email"
             className="mb-1.5 block text-xs font-semibold text-base-content/70"
           >
-            Email address
+            Email Address <span className="text-error">*</span>
           </label>
           <input
             id="register-email"
             type="email"
             autoComplete="email"
-            placeholder="you@example.com"
+            placeholder="maya@example.com"
             className="input input-bordered h-12 w-full rounded-xl border-base-content/10 bg-base-100 text-sm focus:border-base-content/30 focus:outline-none"
             {...register("email")}
           />
@@ -163,20 +180,16 @@ export function RegisterForm() {
             htmlFor="register-photo"
             className="mb-1.5 block text-xs font-semibold text-base-content/70"
           >
-            Photo URL{" "}
-            <span className="font-normal text-base-content/40">(optional)</span>
+            Photo URL <span className="font-normal text-base-content/40">(optional)</span>
           </label>
           <input
             id="register-photo"
             type="url"
             autoComplete="photo"
-            placeholder="https://…"
+            placeholder="https://images.unsplash.com/..."
             className="input input-bordered h-12 w-full rounded-xl border-base-content/10 bg-base-100 text-sm focus:border-base-content/30 focus:outline-none"
             {...register("photoURL")}
           />
-          <p className="mt-1.5 text-[0.68rem] text-base-content/40">
-            Add a portrait so hosts recognize you. You can leave this blank.
-          </p>
           {errors.photoURL?.message ? (
             <p className="mt-1.5 text-xs font-medium text-error">
               {errors.photoURL.message}
@@ -189,14 +202,14 @@ export function RegisterForm() {
             htmlFor="register-password"
             className="mb-1.5 block text-xs font-semibold text-base-content/70"
           >
-            Password
+            Password <span className="text-error">*</span>
           </label>
           <div className="relative">
             <input
               id="register-password"
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
-              placeholder="Create a password"
+              placeholder="At least 6 characters"
               className="input input-bordered h-12 w-full rounded-xl border-base-content/10 bg-base-100 pr-12 text-sm focus:border-base-content/30 focus:outline-none"
               {...register("password")}
             />
@@ -241,35 +254,13 @@ export function RegisterForm() {
           ) : null}
         </div>
 
-        <div>
-          <label
-            htmlFor="register-confirm"
-            className="mb-1.5 block text-xs font-semibold text-base-content/70"
-          >
-            Confirm password
-          </label>
-          <input
-            id="register-confirm"
-            type={showPassword ? "text" : "password"}
-            autoComplete="new-password"
-            placeholder="Repeat your password"
-            className="input input-bordered h-12 w-full rounded-xl border-base-content/10 bg-base-100 text-sm focus:border-base-content/30 focus:outline-none"
-            {...register("confirmPassword")}
-          />
-          {errors.confirmPassword?.message ? (
-            <p className="mt-1.5 text-xs font-medium text-error">
-              {errors.confirmPassword.message}
-            </p>
-          ) : null}
-        </div>
-
         <Button
           type="submit"
           size="lg"
           className="w-full"
           isLoading={isSubmitting}
         >
-          Create account
+          Sign Up / Register
         </Button>
       </form>
 
@@ -289,7 +280,7 @@ export function RegisterForm() {
           href={loginHref}
           className="font-semibold text-base-content underline-offset-4 hover:underline"
         >
-          Sign in
+          Log in here
         </Link>
       </p>
     </>
