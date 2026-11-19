@@ -12,22 +12,26 @@ export const getStudio = cache(async (id: string): Promise<Studio | null> => {
     process.env.API_PROXY_TARGET ?? "http://localhost:5000"
   ).replace(/\/$/, "");
 
-  const response = await fetch(
-    `${apiBase}/api/studios/${encodeURIComponent(id)}`,
-    { cache: "no-store" },
-  );
+  try {
+    const response = await fetch(
+      `${apiBase}/api/studios/${encodeURIComponent(id)}`,
+      { cache: "no-store" },
+    );
 
-  if (response.status === 404 || response.status === 400) {
+    if (response.status === 404 || response.status === 400) {
+      return null;
+    }
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = (await response.json()) as {
+      data?: { studio?: Studio };
+    };
+
+    return payload.data?.studio ?? null;
+  } catch {
     return null;
   }
-
-  if (!response.ok) {
-    throw new Error("The studio could not be loaded.");
-  }
-
-  const payload = (await response.json()) as {
-    data: { studio: Studio };
-  };
-
-  return payload.data.studio;
 });
