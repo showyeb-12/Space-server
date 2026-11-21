@@ -1,0 +1,5 @@
+{
+  "nextConfig": "./next.config.ts",
+  "framework": "nextjs",
+  "region": "auto"
+}
