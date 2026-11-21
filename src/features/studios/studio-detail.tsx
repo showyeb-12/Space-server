@@ -11,6 +11,7 @@ import {
 import { Avatar } from "@/components/ui/avatar";
 import { BookingCard } from "@/features/bookings/booking-card";
 import { GalleryCarousel } from "@/features/studios/gallery-carousel";
+import { ReviewForm } from "@/features/studios/review-form";
 import { WishlistButton } from "@/features/wishlist/wishlist-button";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { Studio } from "@/types";
@@ -266,6 +267,8 @@ export function StudioDetail({ studio }: { studio: Studio }) {
                 No reviews yet. This host is just getting started.
               </p>
             )}
+
+            <ReviewForm studioId={studio.id} />
           </section>
         </div>
 
